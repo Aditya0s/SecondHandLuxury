@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Luxury Finder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+    <header class="luxury-header">
+        <div class="header-content">
+            <h1>Second-Hand Luxury Finder</h1>
+            <p class="tagline">Discover authenticated pre-owned luxury items at exceptional prices</p>
+            <div class="search-container">
+                <input type="text" id="search-box" placeholder="Search for Rolex, Chanel, Louis Vuitton..." aria-label="Search box"/>
+                <button id="search-button" aria-label="Search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="luxury-main">
+        <section id="filters" class="luxury-filters">
+            <div class="filter-group">
+                <label for="category-filter">Category:</label>
+                <select id="category-filter" class="luxury-select">
+                    <option value="">All Categories</option>
+                    <option value="jewellery">Jewelry</option>
+                    <option value="handbags">Handbags</option>
+                    <option value="watches">Watches</option>
+                    <option value="clothing">Clothing</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="brand-filter">Brand:</label>
+                <select id="brand-filter" class="luxury-select">
+                    <option value="">All Brands</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="condition-filter">Condition:</label>
+                <select id="condition-filter" class="luxury-select">
+                    <option value="">All Conditions</option>
+                    <option value="new">New</option>
+                    <option value="excellent">Excellent</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                </select>
+            </div>
+        </section>
+
+        <section id="products" class="product-grid">
+            <!-- Product cards will be inserted here -->
+            <div class="empty-state">
+                <i class="fas fa-search fa-3x"></i>
+                <p>Search for luxury items to see results</p>
+            </div>
+        </section>
+
+        <div id="pagination" class="luxury-pagination">
+            <button id="prev-page" class="pagination-button" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span id="page-number" class="page-indicator">1</span>
+            <button id="next-page" class="pagination-button">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <footer class="luxury-footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Luxury Finder | Built with <i class="fas fa-heart"></i></p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-pinterest"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
