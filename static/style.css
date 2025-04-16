@@ -119,6 +119,7 @@ a {
     max-width: 1200px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+    align-items: flex-end;
 }
 
 .filter-group {
@@ -147,6 +148,12 @@ a {
 .luxury-select:focus {
     outline: none;
     border-color: var(--secondary-color);
+}
+
+#clear-filters {
+    padding: 0.8rem 1.5rem;
+    margin-left: 1rem;
+    align-self: flex-end;
 }
 
 /* Products Section */
@@ -360,11 +367,19 @@ a {
         width: 100%;
         justify-content: center;
     }
+    
+    #clear-filters {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem;
+    }
 }
 
 /* Loading State */
 .loading {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     grid-column: 1 / -1;
     text-align: center;
     padding: 3rem;
@@ -387,7 +402,9 @@ a {
 
 /* Error State */
 .error-message {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     grid-column: 1 / -1;
     text-align: center;
     padding: 3rem;
