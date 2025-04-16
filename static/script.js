@@ -5,25 +5,46 @@ document.addEventListener("DOMContentLoaded", function () {
     const prevPageBtn = document.getElementById("prev-page");
     const nextPageBtn = document.getElementById("next-page");
     const pageNumber = document.getElementById("page-number");
+    const categoryFilter = document.getElementById("category-filter");
+    const brandFilter = document.getElementById("brand-filter");
+    const conditionFilter = document.getElementById("condition-filter");
+    const clearFiltersBtn = document.getElementById("clear-filters");
 
     // Constants
-    const BASE_URL = "https://www.vestiairecollective.com";
-    const DEFAULT_IMAGE = "/static/default.jpg"; // Make sure this image exists in your static folder
-    const IMAGE_BASE_URL = "https://cdn.vestiairecollective.com"; // The actual image CDN
-    
+    const DEFAULT_IMAGE = "/static/default.jpg";
     let currentPage = 1;
+    const ITEMS_PER_PAGE = 20;
+    let debounceTimer;
 
     function fetchProducts() {
         const query = searchBox.value.trim();
-        if (!query) {
-            alert("Please enter a search term");
+        const category = categoryFilter.value;
+        const brand = brandFilter.value;
+        const condition = conditionFilter.value;
+
+        if (!query && !category && !brand && !condition) {
+            productsContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search fa-3x"></i>
+                    <p>Search for pre-owned luxury items (e.g., Rolex, Chanel) or use filters</p>
+                </div>
+            `;
             return;
         }
 
         // Show loading state
-        productsContainer.innerHTML = '<div class="loading">Loading luxury finds...</div>';
-        
-        fetch(`/search?q=${encodeURIComponent(query)}&page=${currentPage}`)
+        productsContainer.innerHTML = '<div class="loading"><div class="loading-spinner"></div><p>Loading pre-owned luxury finds...</p></div>';
+
+        // Build query string with filters
+        const params = new URLSearchParams({
+            q: query,
+            page: currentPage
+        });
+        if (category) params.append("category", category);
+        if (brand) params.append("brand", brand);
+        if (condition) params.append("condition", condition);
+
+        fetch(`/search?${params.toString()}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -32,51 +53,51 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(data => {
                 console.log("API Response:", data);
-                
+
                 // Clear previous results
                 productsContainer.innerHTML = "";
 
-                if (!Array.isArray(data) || data.length === 0) {
+                // Check if data contains products
+                const products = data.itemSummaries || [];
+                if (!Array.isArray(products) || products.length === 0) {
                     productsContainer.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <p>No luxury items found. Try a different search.</p>
+                            <i class="fas fa-search fa-3x"></i>
+                            <p>No pre-owned luxury items found. Try a different search or adjust filters.</p>
                         </div>
                     `;
                     return;
                 }
 
                 // Process each product
-                data.forEach(product => {
-                    // Construct proper image URL - using the correct CDN
-                    const imageUrl = product.pictures && product.pictures.length > 0 
-                        ? IMAGE_BASE_URL + product.pictures[0] 
-                        : DEFAULT_IMAGE;
-                    
-                    // Construct proper product URL
-                    const productUrl = BASE_URL + product.link;
-                    
-                    // Format price (cents to dollars)
-                    const price = product.price 
-                        ? `$${(product.price.cents / 100).toFixed(2)} ${product.price.currency || ''}`
+                products.forEach(product => {
+                    const imageUrl = product.image?.imageUrl || DEFAULT_IMAGE;
+                    const productUrl = product.itemWebUrl || '#';
+                    const price = product.price
+                        ? `${product.price.currency} ${product.price.value}`
                         : 'Price not available';
+                    const title = product.title || 'No title';
+                    const brandName = brand || product.title.split(' ')[0] || 'Luxury Brand';
+                    const conditionText = condition
+                        ? condition.charAt(0).toUpperCase() + condition.slice(1)
+                        : product.condition || 'Unknown';
 
-                    // Create product card
                     const productCard = document.createElement('div');
                     productCard.className = 'product-card';
                     productCard.innerHTML = `
                         <div class="product-image-container">
-                            <img src="${imageUrl}" alt="${product.name}" 
+                            <img src="${imageUrl}" alt="${title}" 
+                                 class="product-image"
                                  onerror="this.src='${DEFAULT_IMAGE}';this.onerror=null;"
                                  loading="lazy">
                         </div>
                         <div class="product-info">
-                            <div class="product-brand">${product.brand?.name || 'Luxury Brand'}</div>
-                            <h3 class="product-title">${product.name}</h3>
+                            <div class="product-brand">${brandName}</div>
+                            <h3 class="product-title">${title}</h3>
                             <div class="product-price">${price}</div>
-                            <p class="product-description">${product.description || ''}</p>
+                            <div class="product-condition">${conditionText}</div>
                             <a href="${productUrl}" target="_blank" class="view-button">
-                                View on Vestiaire <i class="fas fa-external-link-alt"></i>
+                                View on eBay <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
                     `;
@@ -86,17 +107,44 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Update pagination
                 pageNumber.innerText = currentPage;
                 prevPageBtn.disabled = currentPage === 1;
-                nextPageBtn.disabled = data.length < 20; // Assuming 20 items per page
+                nextPageBtn.disabled = products.length < ITEMS_PER_PAGE || !data.next;
             })
             .catch(error => {
                 console.error("Error fetching products:", error);
                 productsContainer.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Failed to load products. Please try again later.</p>
+                        <p>Unable to load pre-owned items. Please try again or check your search.</p>
                     </div>
                 `;
             });
+    }
+
+    // Clear filters and reset UI
+    function clearFilters() {
+        searchBox.value = "";
+        categoryFilter.value = "";
+        brandFilter.value = "";
+        conditionFilter.value = "";
+        currentPage = 1;
+        pageNumber.innerText = "1";
+        prevPageBtn.disabled = true;
+        nextPageBtn.disabled = false;
+        productsContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-search fa-3x"></i>
+                <p>Search for pre-owned luxury items (e.g., Rolex, Chanel) or use filters</p>
+            </div>
+        `;
+    }
+
+    // Debounce fetch to prevent rapid API calls
+    function debounceFetch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            currentPage = 1;
+            fetchProducts();
+        }, 300);
     }
 
     // Event Listeners
@@ -111,6 +159,12 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchProducts();
         }
     });
+
+    categoryFilter.addEventListener("change", debounceFetch);
+    brandFilter.addEventListener("change", debounceFetch);
+    conditionFilter.addEventListener("change", debounceFetch);
+
+    clearFiltersBtn.addEventListener("click", clearFilters);
 
     nextPageBtn.addEventListener("click", () => {
         currentPage++;
