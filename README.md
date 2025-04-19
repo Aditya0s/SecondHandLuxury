@@ -9,7 +9,7 @@ The **Second-Hand Luxury Finder** is a web-based application that helps users di
 - 🔍 **Search by keyword** — Find second-hand luxury items (e.g., "Gucci bag", "Rolex watch").
 - 🖼️ **Product display** — View image, name, brand, description, and direct link to eBay.
 - 🔄 **Pagination** — Browse through multiple pages of results.
-- ⚡ **Live Vestiaire integration** — Real-time product results via Vestiaire API.
+- ⚡ **Live Ebay integration** — Real-time product results via Ebay API.
 - 🎨 **Minimal front-end design** — Built with HTML, CSS, and JavaScript.
 
 
